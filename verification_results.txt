@@ -1,0 +1,12 @@
+=== Starting Unified Login Verification (Port 5001) ===
+
+--- Testing Admin Login ---
+✅ Admin Login Success
+
+--- Testing Hunter Login ---
+✅ Hunter Login Success
+
+--- Testing Invalid Credentials ---
+✅ Invalid Login Rejected Correctly
+
+=== Verification Complete ===

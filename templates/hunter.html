@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hunter Attendance - Hackathon</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* CyberNova Theme - Premium Hunter UI */
+        :root {
+            --primary-color: #7b2cbf;
+            --secondary-color: #b5179e;
+            --accent-color: #4cc9f0;
+            --success-color: #39ff14;
+            --warning-color: #ff9e00;
+            --error-color: #ff0055;
+            --dark-bg: #0a0a12;
+            --glass-bg: rgba(20, 20, 35, 0.75);
+            --glass-border: rgba(120, 100, 255, 0.3);
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0b0;
+            --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --font-mono: 'Consolas', 'Monaco', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: #050510 url("{{ url_for('static', filename='images/solo_leveling_bg.jpg') }}") no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Overlay for better readability */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(10, 10, 20, 0.7) 0%, rgba(5, 5, 10, 0.95) 100%);
+            z-index: -1;
+        }
+
+        /* Cyberpunk Grid Background Effect */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(76, 201, 240, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(76, 201, 240, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .hunter-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow:
+                0 0 40px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(123, 44, 191, 0.2),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            animation: containerFadeIn 0.8s ease-out;
+            position: relative;
+        }
+
+        @keyframes containerFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Top glow line */
+        .hunter-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+            z-index: 2;
+        }
+
+        .hunter-header {
+            padding: 30px 25px 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .hunter-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 5px;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(123, 44, 191, 0.5);
+            letter-spacing: -0.5px;
+        }
+
+        .hunter-header p {
+            font-size: 13px;
+            color: var(--accent-color);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .hunter-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            /* Separator color */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .hunter-info-item {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 15px;
+            text-align: center;
+            transition: background 0.3s ease;
+        }
+
+        .hunter-info-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .hunter-info-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        .hunter-info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            font-family: var(--font-mono);
+            letter-spacing: 0.5px;
+        }
+
+        .content {
+            padding: 25px;
+        }
+
+        /* Modern Inputs */
+        .scanner-section h2 {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .scanner-input {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            margin-bottom: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            font-family: var(--font-mono);
+            letter-spacing: 1px;
+        }
+
+        .scanner-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 0 4px rgba(76, 201, 240, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .scanner-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+            font-family: var(--font-main);
+            letter-spacing: normal;
+        }
+
+        /* Neon Buttons */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(123, 44, 191, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(123, 44, 191, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        /* Preview Section */
+        .preview-section {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .preview-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .preview-image {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 2px solid var(--accent-color);
+            box-shadow: 0 5px 15px rgba(76, 201, 240, 0.3);
+        }
+
+        /* Camera Controls Layout */
+        .camera-section {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .camera-section.active {
+            display: block;
+        }
+
+        .camera-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .camera-container {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            aspect-ratio: 4/3;
+            position: relative;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        /* Session Timer Badge */
+        .session-timer {
+            text-align: center;
+            padding: 15px;
+            background: rgba(123, 44, 191, 0.1);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(123, 44, 191, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .session-timer strong {
+            font-size: 20px;
+            color: var(--accent-color);
+            font-family: var(--font-mono);
+            text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+        }
+
+        /* Messages */
+        .message {
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            backdrop-filter: blur(10px);
+            border-left: 4px solid transparent;
+            animation: slideDown 0.3s ease;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.error {
+            background: rgba(255, 0, 85, 0.1);
+            border-color: var(--error-color);
+            color: #ff80ab;
+        }
+
+        .message.success {
+            background: rgba(57, 255, 20, 0.1);
+            border-color: var(--success-color);
+            color: #b0ffb0;
+        }
+
+        .message.warning {
+            background: rgba(255, 158, 0, 0.1);
+            border-color: var(--warning-color);
+            color: #ffd080;
+        }
+
+        /* Members List Styling */
+        #membersList {
+            background: rgba(0, 0, 0, 0.2) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px !important;
+        }
+
+        #membersList div {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+            padding: 12px 15px !important;
+            transition: all 0.2s;
+        }
+
+        #membersList div:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        #membersList label {
+            font-size: 15px !important;
+            color: var(--text-main) !important;
+        }
+
+        #membersList input[type="checkbox"] {
+            accent-color: var(--primary-color);
+        }
+
+        /* Footer */
+        .hunter-footer {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .hunter-footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hunter-footer a:hover {
+            color: white;
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            body {
+                align-items: flex-start;
+                padding: 15px;
+            }
+
+            .hunter-container {
+                margin-top: 20px;
+            }
+
+            .camera-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Video Overlay Preserved */
+        .gate-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease-out;
+        }
+
+        .gate-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gate-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .white-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease-out;
+        }
+
+        .white-flash.active {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Dungeon Gate Animation Overlay -->
+    <div id="gateOverlay" class="gate-overlay">
+        <video id="gateVideo" class="gate-video" muted playsinline webkit-playsinline>
+            <source src="{{ url_for('static', filename='videos/Video_Generation_Successful.mp4') }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="white-flash" id="whiteFlash"></div>
+    </div>
+
+    <!-- Post-Validation Video Overlay -->
+    <div id="gateEntryOverlay" class="gate-overlay" style="display: none; z-index: 10000;">
+        <video id="gateEntryVideo" class="gate-video" muted playsinline webkit-playsinline preload="auto">
+            <source src="{{ url_for('static', filename='videos/Gate_Entry.mp4') }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
+    <div class="hunter-container" id="mainContainer" style="opacity: 0; transition: opacity 1s;">
+        <!-- Header -->
+        <div class="hunter-header">
+            <h1>🎯 Hunter Attendance</h1>
+            <p>🟥 Dungeon Entry Validation</p>
+        </div>
+
+        <!-- Hunter Info -->
+        <div class="hunter-info">
+            <div class="hunter-info-item">
+                <div class="hunter-info-label">Hunter ID</div>
+                <div class="hunter-info-value">{{ hunterId }}</div>
+            </div>
+            <div class="hunter-info-item">
+                <div class="hunter-info-label">Hunter Name</div>
+                <div class="hunter-info-value">{{ hunterName }}</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Messages -->
+            <div id="errorMessage" class="message error"></div>
+            <div id="successMessage" class="message success"></div>
+            <div id="infoMessage" class="message info"></div>
+            <div id="warningMessage" class="message warning"></div>
+
+            <!-- Success Section (Hidden by default) -->
+            <div id="successSection" style="display: none; text-align: center; padding: 40px 20px;">
+                <div style="font-size: 60px; margin-bottom: 20px;">🎉</div>
+                <h2 style="color: #28a745; margin-bottom: 15px;">Attendance Submitted!</h2>
+                <p style="color: #666; font-size: 16px; margin-bottom: 30px;">Your hunter's attendance has been recorded
+                    successfully.</p>
+                <div
+                    style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 30px; display: inline-block;">
+                    <p style="margin: 0; color: #333; font-weight: 600;">Session: <span id="successSessionId"></span>
+                    </p>
+                </div>
+                <br>
+                <button onclick="window.location.reload()" class="btn btn-primary">Done</button>
+            </div>
+
+            <!-- QR Scanner Section -->
+            <div id="scannerSection" class="scanner-section">
+                <h2>📱 Enter Dungeon Gate Code</h2>
+
+                <!-- QR Input Container -->
+                <div id="qrInputContainer" style="margin-bottom: 20px;">
+                    <label for="qrInput"
+                        style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">Enter Dungeon Gate
+                        Code:</label>
+                    <input type="text" id="qrInput" placeholder="Paste Dungeon Code (e.g., 8AF3...)"
+                        style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; margin-bottom: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; font-size: 18px; letter-spacing: 1px;">
+                    <button onclick="validateQRCode()" class="btn"
+                        style="width: 100%; background: #4CAF50; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-bottom: 10px;">✅
+                        Validate Code</button>
+                </div>
+            </div>
+
+            <!-- Member Selection Section -->
+            <div id="memberSelectionSection" class="scanner-section" style="display: none; text-align: left;">
+                <h2>👥 Select Hunter Members Present</h2>
+                <p style="color: #666; font-size: 14px; margin-bottom: 15px; text-align: center;">Check the box for each
+                    member present in the photo.</p>
+
+                <div id="membersList"
+                    style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; max-height: 300px; overflow-y: auto;">
+                    <!-- Members injected here -->
+                    <div style="text-align: center; color: #999;">Loading members...</div>
+                </div>
+
+                <div style="background: #fff3cd; color: #856404; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 20px; display: none;"
+                    id="selectionError">
+                    ⚠️ You must select at least one member.
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="confirmMembers()" class="btn btn-primary" style="flex: 1;">Continue to
+                        Camera</button>
+                </div>
+            </div>
+
+            <!-- Camera Section -->
+            <div id="cameraSection" class="camera-section">
+                <h2>📷 Take Selfie</h2>
+
+                <!-- Permission Request Button -->
+                <div id="permissionButtonSection" style="text-align: center; padding: 30px 20px;">
+                    <p style="color: #666; margin-bottom: 20px; font-size: 16px;">📷 Enable camera to take a selfie
+                    </p>
+                    <button onclick="requestCameraPermission()" class="btn"
+                        style="width: 100%; max-width: 400px; background: #2196F3; color: white; padding: 15px 30px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 16px; margin-bottom: 10px;">
+                        ✅ Allow Camera Access
+                    </button>
+                    <p style="color: #999; font-size: 13px; margin-top: 15px;">⚠️ Your browser will ask for camera
+                        permission</p>
+                </div>
+
+                <!-- Camera Ready Section -->
+                <div id="cameraReadySection" style="display: none;">
+                    <div class="camera-warning">
+                        ⚠️ Position your camera to capture the entire hunter. Ensure good lighting and clear faces.
+                    </div>
+
+                    <div class="session-timer">
+                        <div>Session Remaining</div>
+                        <strong id="sessionTimer">15:00</strong>
+                    </div>
+
+                    <div class="camera-container">
+                        <video id="cameraStream" autoplay playsinline></video>
+                    </div>
+
+                    <canvas id="canvas" style="display: none;"></canvas>
+
+                    <!-- Preview Section -->
+                    <div id="previewSection" class="preview-section">
+                        <h3>Preview Your Selfie</h3>
+                        <img id="previewImage" class="preview-image" src="" alt="Preview">
+                        <div id="previewFaceCount" class="face-count-badge">Thinking...</div>
+                        <div class="camera-controls">
+                            <button onclick="retakePhoto()" class="btn btn-secondary">Retake</button>
+                            <button onclick="submitAttendance()" class="btn btn-success" id="submitBtn">Submit
+                                Attendance</button>
+                        </div>
+                    </div>
+
+                    <!-- Camera Controls -->
+                    <div id="cameraControls" class="camera-controls">
+                        <button onclick="takePhoto()" class="btn btn-primary" id="captureBtn">Capture Selfie</button>
+                        <button onclick="cancelCamera()" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="hunter-footer">
+        <a href="/logout/hunter">← Logout</a>
+        <span style="color: #ccc; font-size: 10px; margin-left: 10px;">v1.2 (Latest)</span>
+    </div>
+    </div>
+
+    <script>
+        let currentSessionData = null;
+        let capturedImage = null;
+        let cameraStream = null;
+        let sessionTimerInterval = null;
+        let sessionStartTime = null;
+        let hunterMembers = [];
+        let selectedMemberNames = [];
+
+        // Dynamic Member Count from Backend
+        const REQUIRED_MEMBERS_LEGACY = 1; // Default to 1 as per new requirement
+        let REQUIRED_MEMBERS = REQUIRED_MEMBERS_LEGACY;
+
+        // Show message helper
+        // Show message helper
+        function showMessage(type, message) {
+            const messageEl = document.getElementById(type + 'Message');
+            messageEl.innerHTML = message;
+            messageEl.classList.add('show');
+
+            if (type !== 'error') {
+                setTimeout(() => {
+                    messageEl.classList.remove('show');
+                }, 5000);
+            }
+        }
+
+        function hideMessage(type) {
+            document.getElementById(type + 'Message').classList.remove('show');
+        }
+
+        // Load members from API
+        async function loadMembersAndShowSelection() {
+            try {
+                const response = await fetch('/api/hunter/members');
+                const data = await response.json();
+
+                if (data.success && data.members && data.members.length > 0) {
+                    hunterMembers = data.members;
+                    const listEl = document.getElementById('membersList');
+                    listEl.innerHTML = '';
+
+                    hunterMembers.forEach((member, index) => {
+                        const div = document.createElement('div');
+                        div.style.padding = '8px';
+                        div.style.borderBottom = '1px solid #eee';
+                        div.style.display = 'flex';
+                        div.style.alignItems = 'center';
+
+                        // Checkbox
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.id = 'member_' + index;
+                        checkbox.value = member.name;
+                        checkbox.style.marginRight = '10px';
+                        checkbox.style.transform = 'scale(1.2)';
+
+                        // Label
+                        const label = document.createElement('label');
+                        label.htmlFor = 'member_' + index;
+                        label.textContent = member.name;
+                        label.style.fontWeight = '500';
+                        label.style.cursor = 'pointer';
+
+                        if (member.is_lead) {
+                            label.innerHTML += ' <span style="font-size:10px; background:#667eea; color:white; padding:2px 6px; border-radius:4px; margin-left:5px;">LEAD</span>';
+                        }
+
+                        div.appendChild(checkbox);
+                        div.appendChild(label);
+                        listEl.appendChild(div);
+                    });
+
+                    // Show selection screen
+                    document.getElementById('scannerSection').style.display = 'none';
+                    document.getElementById('memberSelectionSection').style.display = 'block';
+
+                } else {
+                    // No members found? Proceed to camera directly (legacy mode)
+                    ('No members found, using legacy mode');
+                    moveToCamera();
+                }
+            } catch (error) {
+                console.error('Error loading members:', error);
+                moveToCamera();
+            }
+        }
+
+        function confirmMembers() {
+            const checkboxes = document.querySelectorAll('#membersList input[type="checkbox"]:checked');
+            selectedMemberNames = Array.from(checkboxes).map(cb => cb.value);
+
+            if (selectedMemberNames.length === 0) {
+                const errorEl = document.getElementById('selectionError');
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            // Update required members for AI check
+            REQUIRED_MEMBERS = selectedMemberNames.length;
+
+            // Hide selection, show camera
+            document.getElementById('memberSelectionSection').style.display = 'none';
+            moveToCamera();
+        }
+
+        // QR Code Validation
+        // Check if hunter already submitted for this session
+        async function checkIfAlreadySubmitted(sessionId) {
+            try {
+                const response = await fetch(`/api/hunter/attendance-status/${sessionId}`);
+                const data = await response.json();
+
+                if (data.submitted) {
+                    ('Hunter already submitted for this session');
+                    showMessage('error', '⚠️ Your hunter already submitted attendance for this session! ✅<br>Waiting for admin verification.<br><br>If you need to resubmit, ask the admin to delete your record first.');
+
+                    // Hide camera section but KEEP the QR code input
+                    document.getElementById('scannerSection').style.display = 'block';
+                    document.getElementById('cameraSection').classList.remove('active');
+                } else {
+                    // Not submitted yet - show camera
+                    ('Hunter can submit for this session');
+                    // Fetch members first
+                    loadMembersAndShowSelection();
+                }
+            } catch (error) {
+                console.error('Error checking submission status:', error);
+                // On error, allow them to proceed
+                moveToCamera();
+            }
+        }
+
+        // Move to camera section (extracted for reuse)
+        function moveToCamera() {
+            setTimeout(() => {
+                // Success!
+                currentSessionData = {
+                    sessionId: currentSessionData.sessionId,
+                    sessionType: currentSessionData.sessionType,
+                    startTime: currentSessionData.startTime, // Use server provided start time
+                    duration: currentSessionData.duration || 15
+                };
+
+                // Play Gate Entry Animation
+                const videoOverlay = document.getElementById('gateEntryOverlay');
+                const video = document.getElementById('gateEntryVideo');
+                const scannerSection = document.getElementById('scannerSection');
+                const cameraSection = document.getElementById('cameraSection');
+
+                if (video) {
+                    // 1. Hide Scanner
+                    scannerSection.style.display = 'none';
+
+                    // 2. Show Video Overlay
+                    videoOverlay.style.display = 'flex';
+                    video.playbackRate = 1.75; // Speed up
+                    video.currentTime = 0;
+
+                    const playPromise = video.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.error("Auto-play failed:", error);
+                            // Fallback: Skip animation
+                            videoOverlay.style.display = 'none';
+                            startCamera();
+                        });
+                    }
+
+                    // 3. When video ends
+                    video.onended = function () {
+                        // Fade out
+                        videoOverlay.classList.add('fade-out');
+                        setTimeout(() => {
+                            videoOverlay.style.display = 'none';
+                            videoOverlay.classList.remove('fade-out'); // Reset for next time
+                            startCamera();
+                        }, 500); // Wait for fade
+                    };
+
+                    // Safety timeout (5s max)
+                    setTimeout(() => {
+                        if (videoOverlay.style.display !== 'none') {
+                            ("Force skipping animation");
+                            videoOverlay.style.display = 'none';
+                            startCamera();
+                        }
+                    }, 5000);
+
+                } else {
+                    // No video, just proceed
+                    scannerSection.style.display = 'none';
+                    startCamera();
+                }
+
+                function startCamera() {
+                    cameraSection.style.display = 'block'; // Force show
+                    cameraSection.classList.add('active');
+                    // Keep camera ready section HIDDEN until permission is granted
+                    document.getElementById('cameraReadySection').style.display = 'none';
+                    showMessage('info', '📷 Requesting camera access...');
+                    requestCameraPermission();
+                    // Start timer
+                    updateSessionTimer();
+                    if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+                    sessionTimerInterval = setInterval(updateSessionTimer, 1000);
+                }
+            }, 100);
+        }
+
+        // Validate Session Code (Simple String or JSON)
+        function validateQRCode() {
+            const qrInput = document.getElementById('qrInput');
+            let qrData = qrInput.value.trim();
+
+            ('Validate called with:', qrData);
+
+            hideMessage('error');
+            hideMessage('success');
+
+            if (!qrData) {
+                showMessage('error', '❌ Please enter the Session Code');
+                return;
+            }
+
+            // Handle legacy JSON if pasted
+            try {
+                if (qrData.startsWith('{') && qrData.endsWith('}')) {
+                    const parsed = JSON.parse(qrData);
+                    if (parsed.sessionId) {
+                        qrData = parsed.sessionId;
+                        ('Parsed JSON to ID:', qrData);
+                    }
+                }
+            } catch (e) {
+                ('Not valid JSON, treating as raw ID');
+            }
+
+            showMessage('info', '🔄 Validating code...');
+
+            fetch('/api/hunter/validate-qr', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ qrData: qrData })
+            })
+                .then(async response => {
+                    const contentType = response.headers.get('content-type');
+
+                    // Handle JSON response
+                    if (contentType && contentType.includes('application/json')) {
+                        const data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Server Error ' + response.status);
+                        }
+
+                        // Store session data from server response
+                        currentSessionData = {
+                            sessionId: data.sessionId,
+                            sessionType: data.sessionType,
+                            startTime: data.startTime, // Store server start time
+                            duration: data.duration
+                        };
+
+                        if (typeof data.startTime === 'undefined') {
+                            console.warn("Server didn't return startTime, using local time.");
+                            currentSessionData.startTime = new Date().getTime();
+                            currentSessionData.duration = 15;
+                        }
+
+                        // Check if already submitted
+                        checkIfAlreadySubmitted(data.sessionId);
+
+                        // Return data for the next .then block to handle success message
+                        return data;
+                    }
+
+                    // Handle HTML/Text response (Session expiry or Server Error)
+                    const text = await response.text();
+                    console.error('Received non-JSON response:', text);
+
+                    if (response.status === 401 || response.status === 403 || (contentType && contentType.includes('text/html'))) {
+                        window.location.reload();
+                        throw new Error('Session expired, reloading...');
+                    }
+
+                    throw new Error(`Server returned ${response.status}. Please try again.`);
+                })
+                .then(data => {
+                    if (data.success) {
+                        // currentSessionData already set in previous block
+
+                        hideMessage('info');
+                        showMessage('success', '✅ Code Validated!');
+
+                        checkIfAlreadySubmitted(data.sessionId);
+                    } else {
+                        showMessage('error', '❌ ' + (data.error || 'Invalid Code'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Validation error:', error);
+                    // Only show error if it's not a reload
+                    if (error.message !== 'Session expired, reloading...') {
+                        const displayMsg = error.message === 'Failed to fetch'
+                            ? '❌ Network error. Check connection.'
+                            : '❌ ' + error.message;
+                        showMessage('error', displayMsg);
+                    }
+                });
+        }
+
+        // Request camera permission
+        let cameraPermissionAttempts = 0;
+
+        function requestCameraPermission() {
+            ('🔵 BUTTON CLICKED - Requesting camera...');
+            openCamera();
+        }
+
+        // Camera Functions - ULTRA SIMPLE
+        async function openCamera() {
+            try {
+                ('🔴 getUserMedia START');
+
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                });
+
+                ('🟢 SUCCESS - Got camera stream!');
+                cameraStream = stream;
+
+                const video = document.getElementById('cameraStream');
+                video.srcObject = stream;
+
+                // Hide permission button, show camera
+                document.getElementById('permissionButtonSection').style.display = 'none';
+                document.getElementById('cameraReadySection').style.display = 'block';
+                document.getElementById('previewSection').classList.remove('active');
+                document.getElementById('cameraControls').style.display = 'flex';
+
+                showMessage('success', '✅ Camera ready! Take your selfie now');
+
+            } catch (error) {
+                console.error('🔴 ERROR:', error.name);
+                console.error('📝 Message:', error.message);
+
+                document.getElementById('permissionButtonSection').style.display = 'block';
+                document.getElementById('cameraReadySection').style.display = 'none';
+
+                let errorMsg = '❌ Camera Error: ';
+
+                if (error.name === 'NotAllowedError') {
+                    errorMsg = '❌ Permission denied. Click "Allow" when browser asks.';
+                } else if (error.name === 'NotFoundError') {
+                    errorMsg = '❌ No camera found on this device.';
+                } else if (error.name === 'NotReadableError') {
+                    errorMsg = '❌ Camera is busy or locked. ';
+                    errorMsg += '<br><br>📋 <strong>FIX:</strong>';
+                    errorMsg += '<br>1. Close Zoom, Skype, Discord, or any app using camera';
+                    errorMsg += '<br>2. Close other browser tabs with camera access';
+                    errorMsg += '<br>3. If USB camera: Unplug and replug it';
+                    errorMsg += '<br>4. Refresh this page and try again';
+                } else if (error.name === 'PermissionDeniedError') {
+                    errorMsg = '❌ Camera permission blocked in system settings.';
+                } else {
+                    errorMsg += error.message;
+                }
+
+                showMessage('error', errorMsg);
+            }
+        }
+
+        function returnToScanner() {
+            // Stop any camera streams
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+
+            if (sessionTimerInterval) {
+                clearInterval(sessionTimerInterval);
+            }
+
+            // Return to scanner
+            currentSessionData = null;
+            document.getElementById('cameraSection').style.display = 'none'; // Force hide
+            document.getElementById('cameraSection').classList.remove('active');
+            document.getElementById('scannerSection').style.display = 'block';
+            document.getElementById('qrInput').value = '';
+            hideMessage('error');
+            hideMessage('info');
+        }
+
+        function takePhoto() {
+            const video = document.getElementById('cameraStream');
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Calculate new dimensions (Max 800px width/height to reduce size)
+            let width = video.videoWidth;
+            let height = video.videoHeight;
+            const MAX_DIMENSION = 800;
+
+            if (width > height) {
+                if (width > MAX_DIMENSION) {
+                    height *= MAX_DIMENSION / width;
+                    width = MAX_DIMENSION;
+                }
+            } else {
+                if (height > MAX_DIMENSION) {
+                    width *= MAX_DIMENSION / height;
+                    height = MAX_DIMENSION;
+                }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            // Draw customized size
+            ctx.drawImage(video, 0, 0, width, height);
+
+            // --- GEOTAGGING OVERLAY START ---
+            showMessage('info', '📍 Getting location...');
+
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    // Success callback
+                    addOverlay(ctx, width, height, position.coords.latitude, position.coords.longitude);
+                }, function (error) {
+                    // Error callback (denied or unavailable)
+                    console.warn("Location error:", error);
+                    addOverlay(ctx, width, height, null, null);
+                }, {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                });
+            } else {
+                // Not supported
+                addOverlay(ctx, width, height, null, null);
+            }
+            // --- GEOTAGGING OVERLAY END ---
+        }
+
+        function addOverlay(ctx, width, height, lat, long) {
+            // Get current time
+            const now = new Date();
+            const timeString = now.toLocaleString();
+            let locationString = "Location: Unavailable";
+
+            if (lat && long) {
+                locationString = `Lat: ${lat.toFixed(6)}, Long: ${long.toFixed(6)}`;
+            }
+
+            // Style settings
+            const fontSize = Math.max(12, Math.floor(width / 30)); // Responsive font size
+            const padding = 10;
+            const lineHeight = fontSize + 6;
+
+            ctx.font = `bold ${fontSize}px 'Segoe UI', sans-serif`;
+            ctx.textBaseline = 'bottom';
+
+            // Draw text
+            // Bottom Right position
+            const x = width - padding;
+            let y = height - padding;
+
+            // Text shadow for readability
+            ctx.shadowColor = "black";
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+
+            ctx.fillStyle = "white";
+            ctx.textAlign = "right";
+
+            // Draw Time (Bottom line)
+            ctx.fillText(timeString, x, y);
+
+            // Draw Location (Above time)
+            y -= lineHeight;
+            ctx.fillText(locationString, x, y);
+
+            // Reset shadow
+            ctx.shadowColor = "transparent";
+
+            // Process image
+            finishCapture(canvas);
+        }
+
+        async function finishCapture(canvas) {
+            // Compress to JPEG 0.7 quality
+            const imageData = canvas.toDataURL('image/jpeg', 0.7);
+            capturedImage = imageData;
+
+            ('Image captured. Size approx: ' + Math.round(imageData.length / 1024) + 'KB');
+
+            document.getElementById('previewImage').src = imageData;
+            document.getElementById('previewSection').classList.add('active');
+
+            // HIDE CAMERA STREAM to avoid double image
+            const cameraContainer = document.querySelector('.camera-container');
+            if (cameraContainer) cameraContainer.style.display = 'none';
+
+            document.getElementById('cameraControls').style.display = 'none';
+
+            // Show processing badge
+            const badge = document.getElementById('previewFaceCount');
+            badge.style.display = 'block';
+            badge.className = 'face-count-badge';
+            badge.textContent = '🔍 Checking faces...';
+
+            hideMessage('info');
+            showMessage('info', 'Review selfie. Tap "Submit" to finish.');
+
+            // --- POST-CAPTURE FACE CHECK ---
+            if (typeof faceapi !== 'undefined' && isModelLoaded) {
+                try {
+                    // Slight delay to ensure UI updates
+                    setTimeout(async () => {
+                        const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.5 });
+                        const detections = await faceapi.detectAllFaces(canvas, options);
+                        const count = detections.length;
+
+                        ("Post-capture detected:", count);
+                        detectedFaceCount = count; // Update global for submission
+
+                        // Update Badge
+                        // Update Badge
+                        badge.textContent = `Faces detected: ${count} / ${REQUIRED_MEMBERS}`;
+
+                        // Strict Equality Check
+                        if (count === REQUIRED_MEMBERS) {
+                            badge.classList.remove('warning');
+                            badge.classList.add('success');
+                            showMessage('success', `✅ Perfect match! ${count} / ${REQUIRED_MEMBERS}`);
+                        } else {
+                            badge.classList.remove('success');
+                            badge.classList.add('warning');
+                            showMessage('error', `⚠️ Number of detected faces does not match hunter size. Please retake the photo.`);
+                        }
+                    }, 100);
+                } catch (e) {
+                    console.error("Post-capture check failed", e);
+                    badge.textContent = 'Face Check Error';
+                }
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function retakePhoto() {
+            capturedImage = null;
+            document.getElementById('previewSection').classList.remove('active');
+
+            // SHOW CAMERA STREAM AGAIN
+            const cameraContainer = document.querySelector('.camera-container');
+            if (cameraContainer) cameraContainer.style.display = 'block';
+
+            document.getElementById('cameraControls').style.display = 'flex';
+            hideMessage('info');
+
+            // Restart detection if needed
+            startFaceDetection();
+        }
+
+        function cancelCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+
+            if (sessionTimerInterval) {
+                clearInterval(sessionTimerInterval);
+            }
+
+            currentSessionData = null;
+            document.getElementById('cameraSection').classList.remove('active');
+            document.getElementById('scannerSection').style.display = 'block';
+            document.getElementById('qrInput').value = '';
+            hideMessage('info');
+            hideMessage('error');
+        }
+
+        // --- FACE DETECTION AI ---
+        let isModelLoaded = false;
+        let detectionInterval = null;
+        let detectedFaceCount = 0;
+
+        async function loadFaceAPI() {
+            if (isModelLoaded) return;
+
+            showMessage('info', '🧠 Loading AI Models... Please wait.');
+            try {
+                // Load face-api.js dynamically if not present
+                if (typeof faceapi === 'undefined') {
+                    await loadScript('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js');
+                }
+
+                // Load models from a public CDN (Github Pages of the author)
+                // We use specific URL to ensure CORS compatibility
+                const MODEL_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
+
+                await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+
+                isModelLoaded = true;
+                ('✅ AI Models Loaded');
+                showMessage('success', '✅ AI Ready. Camera opening...');
+
+            } catch (error) {
+                console.error('AI Load Error:', error);
+                showMessage('warning', '⚠️ AI Load Failed. Manual verification required.');
+                // Allow proceeding even if AI fails
+                isModelLoaded = true;
+            }
+        }
+
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        async function startFaceDetection() {
+            if (!isModelLoaded || !cameraStream) return;
+
+            const video = document.getElementById('cameraStream');
+
+            // Clear previous interval
+            if (detectionInterval) clearInterval(detectionInterval);
+
+            showMessage('info', '👀 Looking for face...');
+
+            detectionInterval = setInterval(async () => {
+                if (!video.videoWidth || video.paused || video.ended) return;
+
+                if (typeof faceapi !== 'undefined') {
+                    try {
+                        const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 });
+                        const detections = await faceapi.detectAllFaces(video, options);
+                        const count = detections.length;
+
+                        // Update UI with count
+                        if (count >= REQUIRED_MEMBERS) {
+                            showMessage('success', `✅ Face detected! (${count} found)`);
+                        } else {
+                            showMessage('warning', `⚠️ Found ${count} faces. Need ${REQUIRED_MEMBERS}!`);
+                        }
+                    } catch (e) {
+                        ("Detection error", e);
+                    }
+                }
+            }, 1000); // Check every second
+        }
+
+        // Hook into existing camera start
+        const originalOpenCamera = openCamera;
+        openCamera = async function () {
+            // Load AI before acting
+            if (!isModelLoaded) {
+                try {
+                    await loadFaceAPI();
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+            await originalOpenCamera();
+            // Start detection once camera is running
+            setTimeout(startFaceDetection, 2000);
+        };
+
+        // Hook into takePhoto to validate
+        const originalTakePhoto = takePhoto;
+        takePhoto = async function () {
+            if (detectionInterval) clearInterval(detectionInterval);
+
+            const video = document.getElementById('cameraStream');
+            // Do one final check
+            let count = 0;
+            if (typeof faceapi !== 'undefined') {
+                try {
+                    const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.5 });
+                    const detections = await faceapi.detectAllFaces(video, options);
+                    count = detections.length;
+                } catch (e) {
+                    console.error("Final check error", e);
+                }
+            } else {
+                // If AI failed to load, skip check
+                originalTakePhoto();
+                return;
+            }
+
+            // Store for submission
+            detectedFaceCount = count;
+
+            // Store for submission
+            detectedFaceCount = count;
+
+            if (count > 0 && count !== REQUIRED_MEMBERS) {
+                if (!confirm(`⚠️ Warning: AI detected ${count} faces. The requirement is ${REQUIRED_MEMBERS}.\n\nContinue anyway?`)) {
+                    // Resume detection if they click Cancel
+                    startFaceDetection();
+                    return;
+                }
+            }
+
+            originalTakePhoto();
+        };
+
+        // Hook into cancel to stop detection
+        const originalCancel = cancelCamera;
+        cancelCamera = function () {
+            if (detectionInterval) clearInterval(detectionInterval);
+            originalCancel();
+        };
+
+        async function submitAttendance() {
+            if (!capturedImage || !currentSessionData) {
+                showMessage('error', '❌ Missing image or session data');
+                return;
+            }
+
+            // Get current face count
+            const faceBadge = document.getElementById('previewFaceCount');
+            // Extract number from "Faces detected: X / Y" or similar
+            // We stored it in global detectedFaceCount
+            const currentFaceCount = detectedFaceCount; // Use global variable set by AI
+
+            // STRICT VALIDATION
+            const expectedCount = selectedMemberNames.length > 0 ? selectedMemberNames.length : REQUIRED_MEMBERS_LEGACY;
+
+            // If legacy (no selection), fallback to required
+            if (selectedMemberNames.length === 0 && currentFaceCount !== expectedCount) {
+                // Allow leniency in legacy mode? Or strict? User said strict.
+                if (!confirm(`⚠️ FACE MISMATCH\n\nDetected: ${currentFaceCount}\nExpected: ${expectedCount}\n\nAre you sure you want to submit? Admin may reject.`)) {
+                    return;
+                }
+            } else if (selectedMemberNames.length > 0 && currentFaceCount !== expectedCount) {
+                // STRICT MODE
+                alert(`⚠️ VALIDATION FAILED\n\nDetected Faces: ${currentFaceCount}\nSelected Members: ${expectedCount}\n\nPlease retake the photo to match the number of selected members.`);
+                return; // BLOCK SUBMISSION
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            try {
+                const response = await fetch('/api/hunter/submit-attendance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId: currentSessionData.sessionId,
+                        sessionType: currentSessionData.sessionType,
+                        image: capturedImage,
+                        faceCount: currentFaceCount,
+                        selectedParticipants: selectedMemberNames
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Success! Show success screen
+                    if (cameraStream) {
+                        cameraStream.getTracks().forEach(track => track.stop());
+                    }
+                    if (sessionTimerInterval) {
+                        clearInterval(sessionTimerInterval);
+                    }
+
+                    if (sessionTimerInterval) {
+                        clearInterval(sessionTimerInterval);
+                    }
+
+                    document.getElementById('cameraSection').style.display = 'none'; // Force hide
+                    document.getElementById('cameraSection').classList.remove('active');
+                    document.getElementById('scannerSection').style.display = 'none';
+                    document.getElementById('qrInput').value = '';
+
+                    // Show success UI
+                    document.getElementById('successSection').style.display = 'block';
+                    document.getElementById('successSessionId').textContent = currentSessionData.sessionId;
+
+                    // Clear messages
+                    hideMessage('info');
+                    hideMessage('error');
+                } else {
+                    showMessage('error', '❌ ' + (data.error || 'Submission failed'));
+                    btn.disabled = false;
+                    btn.textContent = 'Submit Attendance';
+                }
+            } catch (error) {
+                console.error('Submission error:', error);
+                showMessage('error', '❌ Network error during submission');
+                btn.disabled = false;
+                btn.textContent = 'Submit Attendance';
+            }
+        }
+
+        function updateSessionTimer() {
+            if (!currentSessionData || !currentSessionData.startTime) return;
+
+            // Make sure startTime is a timestamp
+            let startTime = currentSessionData.startTime;
+            // If it's an ISO string from server, convert to timestamp
+            if (typeof startTime === 'string') {
+                startTime = new Date(startTime).getTime();
+            }
+
+            const now = new Date().getTime();
+            const elapsedMs = now - startTime;
+            const elapsedMinutes = elapsedMs / 1000 / 60;
+
+            const duration = currentSessionData.duration || 15;
+            const remaining = Math.max(0, duration - elapsedMinutes);
+
+            const minutes = Math.floor(remaining);
+            const seconds = Math.floor((remaining - minutes) * 60);
+
+            const timerEl = document.getElementById('sessionTimer');
+            if (timerEl) {
+                timerEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                if (remaining <= 0) {
+                    timerEl.textContent = "0:00";
+                    timerEl.style.color = '#c62828';
+                    // Optional: auto-expire?
+                } else if (remaining <= 2) {
+                    timerEl.parentElement.style.background = '#ffebee';
+                    timerEl.style.color = '#c62828';
+                }
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                const qrInput = document.getElementById('qrInput');
+                if (qrInput && document.activeElement === qrInput) {
+                    validateQRCode();
+                }
+            }
+        });
+
+        // Clean up on page leave
+        window.addEventListener('beforeunload', function () {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+            }
+            if (sessionTimerInterval) {
+                clearInterval(sessionTimerInterval);
+            }
+        });
+
+        // Initialize Animation on Load
+        window.addEventListener('load', function () {
+            playEntryAnimation();
+        });
+
+        // Video Entry Animation
+        function playEntryAnimation() {
+            const gateOverlay = document.getElementById('gateOverlay');
+            const gateVideo = document.getElementById('gateVideo');
+            const mainContainer = document.getElementById('mainContainer');
+            const whiteFlash = document.getElementById('whiteFlash');
+
+            if (!gateVideo) {
+                console.error("Video element not found!");
+                gateOverlay.style.display = 'none';
+                mainContainer.style.opacity = '1';
+                return;
+            }
+
+            // Function to finish animation
+            const finishAnimation = () => {
+                gateOverlay.classList.add('fade-out');
+                mainContainer.style.opacity = '1';
+                setTimeout(() => {
+                    gateOverlay.style.display = 'none';
+                }, 1000);
+            };
+
+            // Set playback speed
+            gateVideo.playbackRate = 1.6;
+
+            // Play video
+            const playPromise = gateVideo.play();
+
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    ("Auto-play was prevented. Showing controls or falling back.", error);
+                    // Fallback: If autoplay fails, just show content immediately or show play button
+                    // For seamless experience, we might just have to hide it if we can't play it
+                    finishAnimation();
+                });
+            }
+
+            // On Video End
+            gateVideo.onended = function () {
+                finishAnimation();
+            };
+
+            // Safety timeout: If video stalls or doesn't fire ended for some reason (8 seconds max)
+            setTimeout(() => {
+                if (gateOverlay.style.display !== 'none') {
+                    ("Animation timeout forced.");
+                    finishAnimation();
+                }
+            }, 8000);
+        }
+
+        // Keep this for consistent API or dummy it out
+        function triggerDungeonGateAnimation(callback) {
+            if (callback) callback();
+        }
+    </script>
+</body>
+
+</html>
