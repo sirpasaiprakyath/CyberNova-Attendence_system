@@ -4,3 +4,4 @@ pandas
 waitress
 openpyxl
 Pillow
+gunicorn
