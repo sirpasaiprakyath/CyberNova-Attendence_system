@@ -443,15 +443,70 @@
         @media (max-width: 600px) {
             body {
                 align-items: flex-start;
-                padding: 15px;
+                padding: 0;
             }
 
             .hunter-container {
-                margin-top: 20px;
+                max-width: 100%;
+                width: 100%;
+                border-radius: 0;
+                min-height: 100vh;
+                margin-top: 0;
+            }
+
+            .hunter-header {
+                padding: 20px 16px 12px;
+            }
+
+            .hunter-header h1 {
+                font-size: 22px;
+                white-space: nowrap;
+            }
+
+            .hunter-header p {
+                font-size: 11px;
+                letter-spacing: 1.5px;
+                white-space: nowrap;
+            }
+
+            .hunter-info-label {
+                font-size: 10px;
+                letter-spacing: 0.5px;
+            }
+
+            .hunter-info-value {
+                font-size: 14px;
+            }
+
+            .hunter-info-item {
+                padding: 12px 8px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .scanner-section h2 {
+                font-size: 16px;
+                white-space: nowrap;
+            }
+
+            .scanner-input {
+                font-size: 15px;
+                padding: 14px 12px;
+            }
+
+            .btn {
+                padding: 14px 10px;
+                font-size: 14px;
             }
 
             .camera-controls {
                 grid-template-columns: 1fr;
+            }
+
+            .hunter-footer {
+                padding: 16px;
             }
         }
 
