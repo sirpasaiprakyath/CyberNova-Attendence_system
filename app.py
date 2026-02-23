@@ -30,22 +30,32 @@ app.secret_key = 'hackathon-attendance-secret-key-2026'
 try:
     # Check if Firebase is already initialized (from previous app reload)
     if not firebase_admin._apps:
-        # Initialize Firebase with service account credentials
-        cred = credentials.Certificate("serviceAccountKey.json")
+        # Try to load credentials from environment variable first (for Vercel/cloud deployments)
+        creds_json = os.environ.get('FIREBASE_CREDENTIALS_JSON')
+        if creds_json:
+            import json as _json
+            cred_dict = _json.loads(creds_json)
+            cred = credentials.Certificate(cred_dict)
+            print("✅ Firebase credentials loaded from environment variable")
+        else:
+            # Fall back to local file (for local development)
+            cred = credentials.Certificate("serviceAccountKey.json")
+            print("✅ Firebase credentials loaded from serviceAccountKey.json")
+
         firebase_admin.initialize_app(cred, {
             'storageBucket': 'attendence-63b06.appspot.com'
         })
         print("✅ Firebase initialized successfully")
-    
+
     # Get Firestore and Storage clients
     db = firestore.client()
     storage_client = storage.bucket()
     FIREBASE_ENABLED = True
     print("✅ Firestore and Storage clients initialized")
-    
+
 except FileNotFoundError as e:
-    print(f"❌ Firebase initialization failed: Service account key file not found")
-    print(f"   Error: {e}")
+    print(f"❌ Firebase initialization failed: serviceAccountKey.json not found.")
+    print(f"   Set FIREBASE_CREDENTIALS_JSON env var or place serviceAccountKey.json in project root.")
     FIREBASE_ENABLED = False
     db = None
     storage_client = None
