@@ -43,7 +43,7 @@ try:
             print("✅ Firebase credentials loaded from serviceAccountKey.json")
 
         firebase_admin.initialize_app(cred, {
-            'storageBucket': 'attendence-63b06.appspot.com'
+            'storageBucket': 'attendence-d7436.appspot.com'
         })
         print("✅ Firebase initialized successfully")
 
@@ -66,7 +66,7 @@ except Exception as e:
     storage_client = None
 
 # Firebase configuration
-FIREBASE_STORAGE_BUCKET = 'attendence-63b06.appspot.com'
+FIREBASE_STORAGE_BUCKET = 'attendence-d7436.appspot.com'
 
 # Admin credentials (hardcoded)
 ADMIN_USERNAME = 'CyberNova'
