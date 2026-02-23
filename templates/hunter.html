@@ -416,27 +416,38 @@
             accent-color: var(--primary-color);
         }
 
-        /* Footer */
         .hunter-footer {
             padding: 20px;
             text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .hunter-footer a {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            transition: color 0.3s;
-            display: inline-flex;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(0, 0, 0, 0.35);
+            display: flex;
             align-items: center;
-            gap: 5px;
+            justify-content: center;
+            gap: 16px;
         }
 
-        .hunter-footer a:hover {
-            color: white;
+        .logout-btn {
+            color: var(--error-color);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            padding: 8px 20px;
+            border: 1px solid rgba(255, 0, 85, 0.3);
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 0, 85, 0.15);
+            color: #ff4080;
+            border-color: rgba(255, 0, 85, 0.6);
+        }
+
+        .version-badge {
+            color: var(--text-muted);
+            font-size: 11px;
         }
 
         /* Mobile Adjustments */
@@ -622,7 +633,8 @@
                 <!-- QR Input Container -->
                 <div id="qrInputContainer" style="margin-bottom: 20px;">
                     <label for="qrInput"
-                        style="display: block; font-weight: 600; margin-bottom: 10px; color: #333;">Enter Dungeon Gate
+                        style="display: block; font-weight: 600; margin-bottom: 10px; color: var(--text-muted);">Enter
+                        Dungeon Gate
                         Code:</label>
                     <input type="text" id="qrInput" placeholder="Paste Dungeon Code (e.g., 8AF3...)"
                         style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; margin-bottom: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; font-size: 18px; letter-spacing: 1px;">
@@ -709,13 +721,12 @@
 
             </div>
         </div>
-    </div>
 
-    <!-- Footer -->
-    <div class="hunter-footer">
-        <a href="/logout/hunter">← Logout</a>
-        <span style="color: #ccc; font-size: 10px; margin-left: 10px;">v1.2 (Latest)</span>
-    </div>
+        <!-- Footer with Logout -->
+        <div class="hunter-footer">
+            <a href="/logout/hunter" class="logout-btn">← Logout</a>
+            <span class="version-badge">v1.2 (Latest)</span>
+        </div>
     </div>
 
     <script>
